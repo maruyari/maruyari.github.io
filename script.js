@@ -527,9 +527,9 @@ function minimax(board) {
       isComputer = true;
 
       let board=[];
-      for (i=0 ;i<3 ;i++)
+      for (let i=0 ;i<3 ;i++)
       {
-        for (j=0;j<3;j++)
+        for (let j=0;j<3;j++)
         {
           board[i][j]=cols[i][j];
         }
