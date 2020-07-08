@@ -1,5 +1,5 @@
 'use strict';
-import _ from "lodash"
+static import _ from "lodash"
 var EMPTY= null;
 
 function initial_state() {
