@@ -1,7 +1,7 @@
 'use strict';
-//static import _ from "lodash"
-var EMPTY= null;
 
+var EMPTY= null;
+var board=[[EMPTY,EMPTY,EMPTY],[EMPTY,EMPTY,EMPTY],[EMPTY,EMPTY,EMPTY]];
 function initial_state() {
   return [[EMPTY, EMPTY, EMPTY],
     [EMPTY, EMPTY, EMPTY],
@@ -15,7 +15,7 @@ function player(board) {
   for (let i=0;i<length;i++){
     for (let j=0;j<length;j++)
     {
-      if (board[i][j] ==="X" || board[i][j] === "O"){
+      if (board[i][j] ==='x' || board[i][j] === 'o'){
         count = count + 1;
       }
     }
@@ -28,11 +28,11 @@ function player(board) {
   }
 
   if (count % 2 === 0){
-    return "O";
+    return 'o';
 
   }
   else{
-    return "X";
+    return 'o';
   }
 
 }
@@ -56,14 +56,13 @@ function checkAction(board,action) {
   let allactions=actions(board);
   let x;
   for(x of allactions){
-    if(x===action){
+    if(x[0]===action[0] && x[1]===action[1]){
       return true;
     }
   }
   return false;
 
 }
-
 function result(board, action) {
   let ResultingBoard=_.cloneDeep(board);
   if (terminal(board))
@@ -78,13 +77,13 @@ function result(board, action) {
 
   else
   {
-    if (player(board) === "X")
+    if (player(board) === 'x')
     {
-      ResultingBoard[action[0]][action[1]] = "X";
+      ResultingBoard[action[0]][action[1]] = 'x';
     }
 
     else
-      ResultingBoard[action[0]][action[1]] = "O";
+      ResultingBoard[action[0]][action[1]] = 'o';
   }
 
 
@@ -94,28 +93,28 @@ function result(board, action) {
 
 
 function winner(board) {
-  if ((board[0][0] === "X" && board[1][1] === "X" && board[2][2] ==="X") || (
-      board[0][2] === "X" && board[1][1] === "X" && board[2][0] === "X") || (
-      board[0][0] === "X" && board[0][1] === "X" && board[0][2] === "X") || (
-      board[1][0] === "X" && board[1][1] ==="X" && board[1][2] === "X") || (
-      board[2][0] === "X" && board[2][1] === "X" && board[2][2] === "X") || (
-      board[0][0] ==="X" && board[1][0] === "X" && board[2][0] === "X") || (
-      board[0][1] === "X" && board[1][1] === "X" && board[2][1] === "X") || (
-      board[0][2] === "X" && board[1][2] === "X" && board[2][2] === "X"))
+  if ((board[0][0] === 'x' && board[1][1] === 'x' && board[2][2] ==='x') || (
+      board[0][2] === 'x' && board[1][1] ==='x'&& board[2][0] === 'x') || (
+      board[0][0] ==='x' && board[0][1] ==='x' && board[0][2] === 'x') || (
+      board[1][0] === 'x' && board[1][1] ==='x'&& board[1][2] === 'x') || (
+      board[2][0] === 'x' && board[2][1] === 'x' && board[2][2] === 'x') || (
+      board[0][0] ==='x' && board[1][0] ==='x' && board[2][0] === 'x') || (
+      board[0][1] === 'x' && board[1][1] === 'x' && board[2][1] === 'x') || (
+      board[0][2] === 'x'&& board[1][2] === 'x' && board[2][2] === 'x'))
   {
-    return "X";
+    return 'x';
   }
 
-  else if ((board[0][0] === "O" && board[1][1] === "O" && board[2][2] === "O") || (
-      board[0][2] === "O" && board[1][1] === "O" && board[2][0] === "O") || (
-      board[0][0] ==="O" && board[0][1] === "O" && board[0][2] === "O") || (
-      board[1][0] ==="O" && board[1][1] === "O" && board[1][2] === "O") || (
-      board[2][0] === "O" && board[2][1] === "O" && board[2][2] === "O") || (
-      board[0][0] === "O" && board[1][0] === "O" && board[2][0] === "O") || (
-      board[0][1] === "O" && board[1][1] === "O" && board[2][1] === "O") || (
-      board[0][2] === "O" && board[1][2] === "O" && board[2][2] === "O"))
+  else if ((board[0][0] === 'o' && board[1][1] ==='o' && board[2][2] === 'o') || (
+      board[0][2] ==='o' && board[1][1] ==='o' && board[2][0] === 'o') || (
+      board[0][0] ==='o' && board[0][1] === 'o' && board[0][2] === 'o') || (
+      board[1][0] ==='o' && board[1][1] === 'o' && board[1][2] === 'o') || (
+      board[2][0] === 'o' && board[2][1] === 'o' && board[2][2] === 'o') || (
+      board[0][0] === 'o' && board[1][0] ==='o' && board[2][0] === 'o') || (
+      board[0][1] === 'o' && board[1][1] ==='o' && board[2][1] ==='o') || (
+      board[0][2] === 'o' && board[1][2] ==='o'&& board[2][2] ==='o'))
   {
-    return "O";
+    return 'o';
   }
 
   else
@@ -129,20 +128,20 @@ function winner(board) {
 function terminal(board){
   if (winner(board)!= null)
     return true;
-  for (let row of board)
-    for (let cell of row)
-      if (cell === EMPTY)
+  for (let i=0;i<3;i++)
+    for (let j=0;j<3;j++)
+      if (board[i][j] === EMPTY)
         return false;
   return true;
 }
 
 
 function utility(board) {
-  if (winner(board) === "X")
+  if (winner(board) === 'x')
   {
     return 1;
   }
-  if (winner(board) === "O")
+  if (winner(board) ==='o')
   {
     return -1;
   }
@@ -159,6 +158,7 @@ function utility(board) {
  * @return {number}
  */
 function MaxValue(board) {
+  console.log("max");
   if (terminal(board))
   {
     return utility(board);
@@ -167,13 +167,7 @@ function MaxValue(board) {
 
   let action;
   for (action of actions(board))
-  {
     v = Math.max(v, MinValue(result(board, action)));
-    alpha= Math.max(alpha, v);
-    if (beta <= alpha)
-      break;
-  }
-
   return v;
 }
 
@@ -182,41 +176,33 @@ function MaxValue(board) {
  * @return {number}
  */
 function MinValue(board) {
+  console.log("min");
   if (terminal(board))
     return utility(board);
   let v = 737427379378478374;
   let action;
   for (action of actions(board))
-  {
-    v = Math.max(v, MinValue(result(board, action)));
-    beta = Math.min(beta, v);
-    if (beta <= alpha)
-      break;
-  }
-
-
+    v = Math.min(v, MaxValue(result(board, action)));
   return v;
 }
-var alpha = -737427379378478374;
-var beta = 737427379378478374;
+
 
 function minimax(board) {
 
   let maximum = -9876544282792;
   let minimum = 987736356373;
-
-
   if (board === initial_state())
   {
     return [0, 0];
   }
 
   let finalaction = null;
-  if (player(board) === "X")
+  if (player(board) === 'x')
   {   let action;
     let minval;
     for ( action of actions(board))
-    {
+    {  console.log("actions",actions(board));
+      console.log("resulting board",result(board,action));
       minval = MinValue(result(board, action));
       if (minval > maximum)
       {
@@ -230,11 +216,13 @@ function minimax(board) {
   }
 
 
-  else if(player(board) === "O")
+  else if(player(board) === 'o')
   {   let action;
     let maxval;
     for (action of actions(board))
-    {
+    { console.log("actions=0",actions(board));
+
+      console.log("resulting board",result(board,action),action);
       maxval = MaxValue(result(board, action));
       if (maxval < minimum)
       {
@@ -243,7 +231,7 @@ function minimax(board) {
       }
     }
 
-
+    return finalaction;
   }
 
 
@@ -525,20 +513,14 @@ function minimax(board) {
       }
 
       isComputer = true;
-
-      let board=[];
-      for (let i=0 ;i<3 ;i++)
-      {
-        for (let j=0;j<3;j++)
-        {
-          board[i][j]=cols[i][j];
-        }
-
-      }
-
+      console.log(cols);
+      console.log(board);
       let action= minimax(board);
+      console.log(action);
+
       let i=action[0];
       let j=action[1];
+      board[i][j]=chars.com;
       appendChar(cols[i][j], chars.com); //give the move in form of col[i][j]
 
       isComputer = false;
@@ -546,10 +528,10 @@ function minimax(board) {
       if (checkWinner()) {
         var winner = checkWinner();
         win(winner);
-        return;
+
       } else if (checkTie()) {
         tie();
-        return;
+
       }
 
     } // end-computer
@@ -567,7 +549,7 @@ function minimax(board) {
       }
 
       var coords = getCoords(target);
-
+      board[coords.row][coords.col]=chars.p;
       appendChar(cols[coords.row][coords.col], chars.p);
 
       if (checkWinner()) {
@@ -626,11 +608,11 @@ function minimax(board) {
   $(document).ready(function() {
 
     // DOM
-    var $game = $('.game'),
+    let $game = $('.game'),
         $scores = $('.scores'),
         $dialogs = $('.dialogs');
 
-    var game = new TicTacToe({
+    let game = new TicTacToe({
 
       game: $game,
       scores: $scores,
@@ -640,4 +622,4 @@ function minimax(board) {
 
   });
 
-})()
+})();
