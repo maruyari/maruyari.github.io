@@ -32,7 +32,7 @@ function player(board) {
 
   }
   else{
-    return 'o';
+    return 'x';
   }
 
 }
