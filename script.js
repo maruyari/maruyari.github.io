@@ -161,9 +161,9 @@ function MaxValue(board, alpha, beta) {
     for (action of actions(board)) {
         v = Math.max(v, MinValue(result(board, action), alpha, beta));
         alpha = Math.max(alpha, v);
-        // if (alpha <= beta) {
-        //     break;
-        // }
+        if (alpha >= beta) {
+            break;
+        }
 
     }
     // v = Math.max(v, MinValue(result(board, action),alpha,beta));
@@ -183,9 +183,9 @@ function MinValue(board, alpha, beta) {
     for (action of actions(board)) {
         v = Math.min(v, MaxValue(result(board, action), alpha, beta));
         beta = Math.min(v, beta);
-        // if (alpha <= beta) {
-        //     break;
-        // }
+        if (alpha >= beta) {
+            break;
+        }
 
     }
     //v = Math.min(v, MaxValue(result(board, action),alpha,beta));
