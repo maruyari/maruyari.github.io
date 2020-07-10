@@ -2,7 +2,7 @@
 
 var EMPTY = null;
 var board = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]];
-
+var player_is_x= true;
 
 (function () {
 
@@ -209,7 +209,8 @@ var board = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]
         } // end-checkWin
 
         function win(winner) {
-
+            player_is_x=!player_is_x;
+            board=initial_state();
             function winAction(row, text) {
                 row.forEach(function (col) {
                     blink(col);
@@ -253,7 +254,8 @@ var board = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]
         } // end-checkTie
 
         function tie() {
-
+          player_is_x = !player_is_x;
+          board=initial_state();
             action('tie');
             scores.ties++;
             updateScores();
@@ -278,17 +280,33 @@ var board = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]
                 }
 
             }
-
-            if (count === 9) {
+            if(player_is_x)
+            {
+              if (count === 9) {
                 return "over";
-            }
+              }
 
-            if (count % 2 === 0) {
+              if (count % 2 === 0) {
                 return 'x';
 
-            } else {
+              } else {
                 return 'o';
+              }
             }
+            else
+            {
+              if (count === 9) {
+                return "over";
+              }
+
+              if (count % 2 === 0) {
+                return 'o';
+
+              } else {
+                return 'x';
+              }
+            }
+
 
         }
 
@@ -431,14 +449,14 @@ var board = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]
             }
 
             let finalaction = null;
-            if (chars.com === 'x') {
+            if (play(board) === 'x') {
                 let action;
                 let minval;
                 for (action of actions(board)) {
-                    console.log("actions", actions(board));
+                    //onsole.log("actions", actions(board));
                     console.log("resulting board", result(board, action));
                     minval = MinValue(result(board, action));
-                    console.log("minival=",minval);
+                    //console.log("minival=",minval);
                     if (minval > maximum) {
                         finalaction = action;
                         maximum = minval;
@@ -446,15 +464,15 @@ var board = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]
                 }
 
                 return finalaction;
-            } else if (chars.com === 'o') {
+            } else if (play(board) === 'o') {
                 let action;
                 let maxval;
                 for (action of actions(board)) {
-                    console.log("actions=0", actions(board));
+                    //console.log("actions=0", actions(board));
 
                     console.log("resulting board", result(board, action), action);
                     maxval = MaxValue(result(board, action));
-                  console.log("maxival=",maxval);
+                  //console.log("maxival=",maxval);
                     if (maxval < minimum) {
                         finalaction = action;
                         minimum = maxval;
@@ -492,9 +510,24 @@ var board = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]
             console.log(board);
             let action = minimax(board);
             console.log(action);
+            console.log("eee",board);
+            let i,j;
+            if(action===null)
+            {
+              i=0;
+              j=0;
+            }
+            else if(board===initial_state())
+            {
+              i=0;
+              j=0;
+            }
+            else
+            {
+               i = action[0];
+              j = action[1];
+            }
 
-            let i = action[0];
-            let j = action[1];
             board[i][j] = chars.com;
             appendChar(cols[i][j], chars.com); //give the move in form of col[i][j]
 
@@ -537,7 +570,7 @@ var board = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]
             }
 
             isComputer = true;
-            setTimeout(computer, 250);
+            setTimeout(computer, 25);
 
         } // end-player
 
@@ -555,11 +588,12 @@ var board = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]
         });
 
         $dialogs.find('.pick').find('button').on('click', function (e) {
-
+//come here
             var target = $(e.target);
             if (target.hasClass('x')) {
                 chars.p = 'x';
                 chars.com = 'o';
+                player_is_x=true;
                 $scores.find('.p').find('.char').html('X');
                 $scores.find('.com').find('.char').html('O');
             } else {
@@ -567,6 +601,7 @@ var board = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]
                 chars.com = 'x';
                 $scores.find('.p').find('.char').html('O');
                 $scores.find('.com').find('.char').html('X');
+                player_is_x=false;
             }
             dialogs('out', 'pick');
 
