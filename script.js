@@ -1,8 +1,257 @@
 'use strict';
 
 var EMPTY = null;
-var board = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]];
-var player_is_x= true;
+var board_curr = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]];
+var player_is_x = true;
+function initial_state() {
+    return [[EMPTY, EMPTY, EMPTY],
+        [EMPTY, EMPTY, EMPTY],
+        [EMPTY, EMPTY, EMPTY]];
+}
+
+
+function play(board) {
+    let count = 0;
+    let length = 3;
+    for (let i = 0; i < length; i++) {
+        for (let j = 0; j < length; j++) {
+            if (board[i][j] === 'x' || board[i][j] === 'o') {
+                count = count + 1;
+            }
+        }
+
+    }
+    if (player_is_x) {
+        if (count === 9) {
+            return "over";
+        }
+
+        if (count % 2 === 0) {
+            return 'x';
+
+        } else {
+            return 'o';
+        }
+    } else {
+        if (count === 9) {
+            return "over";
+        }
+
+        if (count % 2 === 0) {
+            return 'o';
+
+        } else {
+            return 'x';
+        }
+    }
+
+
+}
+
+
+function actions(board) {
+    let action = [];
+    let length = 3;
+    for (let i = 0; i < length; i++) {
+        for (let j = 0; j < length; j++) {
+            if (board[i][j] === EMPTY)
+                action.push([i, j]);
+        }
+    }
+
+
+    return action
+}
+
+function checkAction(board, action) {
+    let allactions = actions(board);
+    let x;
+    for (x of allactions) {
+        if (x[0] === action[0] && x[1] === action[1]) {
+            return true;
+        }
+    }
+    return false;
+
+}
+
+function result(board, action) {
+
+    if (terminal(board)) {
+        return "Game over.";
+    } else if (!checkAction(board, action)) {
+        return "Invalid action.";
+    } else {
+        let ResultingBoard = _.cloneDeep(board);
+        if (play(board) === 'x') {
+            ResultingBoard[action[0]][action[1]] = 'x';
+        } else
+            ResultingBoard[action[0]][action[1]] = 'o';
+        return ResultingBoard;
+    }
+
+
+}
+
+
+function winner(board) {
+    if ((board[0][0] === 'x' && board[1][1] === 'x' && board[2][2] === 'x') || (
+        board[0][2] === 'x' && board[1][1] === 'x' && board[2][0] === 'x') || (
+        board[0][0] === 'x' && board[0][1] === 'x' && board[0][2] === 'x') || (
+        board[1][0] === 'x' && board[1][1] === 'x' && board[1][2] === 'x') || (
+        board[2][0] === 'x' && board[2][1] === 'x' && board[2][2] === 'x') || (
+        board[0][0] === 'x' && board[1][0] === 'x' && board[2][0] === 'x') || (
+        board[0][1] === 'x' && board[1][1] === 'x' && board[2][1] === 'x') || (
+        board[0][2] === 'x' && board[1][2] === 'x' && board[2][2] === 'x')) {
+        return 'x';
+    } else if ((board[0][0] === 'o' && board[1][1] === 'o' && board[2][2] === 'o') || (
+        board[0][2] === 'o' && board[1][1] === 'o' && board[2][0] === 'o') || (
+        board[0][0] === 'o' && board[0][1] === 'o' && board[0][2] === 'o') || (
+        board[1][0] === 'o' && board[1][1] === 'o' && board[1][2] === 'o') || (
+        board[2][0] === 'o' && board[2][1] === 'o' && board[2][2] === 'o') || (
+        board[0][0] === 'o' && board[1][0] === 'o' && board[2][0] === 'o') || (
+        board[0][1] === 'o' && board[1][1] === 'o' && board[2][1] === 'o') || (
+        board[0][2] === 'o' && board[1][2] === 'o' && board[2][2] === 'o')) {
+        return 'o';
+    } else {
+        return null;
+    }
+
+}
+
+
+function terminal(board) {
+    if (winner(board) != null)
+        return true;
+    for (let i = 0; i < 3; i++)
+        for (let j = 0; j < 3; j++)
+            if (board[i][j] === EMPTY)
+                return false;
+    return true;
+}
+
+
+function utility(board) {
+    if (winner(board) === 'x') {
+        return 1;
+    }
+
+    if (winner(board) === 'o') {
+        return -1;
+    } else {
+        return 0;
+    }
+
+
+}
+
+
+
+/**
+ * @return {number}
+ */
+function MaxValue(board, alpha, beta) {
+    //console.log("max");
+    if (terminal(board)) {
+        return utility(board);
+    }
+    let v = -737427379378478374;
+
+    let action;
+    for (action of actions(board)) {
+        v = Math.max(v, MinValue(result(board, action), alpha, beta));
+        alpha = Math.max(alpha, v);
+        // if (alpha <= beta) {
+        //     break;
+        // }
+
+    }
+    // v = Math.max(v, MinValue(result(board, action),alpha,beta));
+    return v;
+}
+
+
+/**
+ * @return {number}
+ */
+function MinValue(board, alpha, beta) {
+    //console.log("min");
+    if (terminal(board))
+        return utility(board);
+    let v = 737427379378478374;
+    let action;
+    for (action of actions(board)) {
+        v = Math.min(v, MaxValue(result(board, action), alpha, beta));
+        beta = Math.min(v, beta);
+        // if (alpha <= beta) {
+        //     break;
+        // }
+
+    }
+    //v = Math.min(v, MaxValue(result(board, action),alpha,beta));
+    return v;
+}
+function getRndInteger(min, max) {
+    return Math.floor(Math.random() * (max - min) ) + min;
+}
+
+
+function minimax(board) {
+    console.log("minimax is getting",board);
+    let maximum = -9876544282792;
+    let minimum = 987736356373;
+    let alpha = -2837643415347874;
+    let beta = 46876435468435467;
+    if (board === initial_state()) {
+        let all_actions=actions(board);
+        let size=all_actions.length;
+        let choose=getRndInteger(0,size);
+        // return all_actions(choose);
+        return [1,1];
+    }
+
+    let finalaction = null;
+    if (play(board) === 'x') {
+        let action;
+        let minval;
+        for (action of actions(board)) {
+            //onsole.log("actions", actions(board));
+            console.log("resulting board", result(board, action));
+            minval = MinValue(result(board, action), alpha, beta);
+            //console.log("minival=",minval);
+            if (minval > maximum) {
+                finalaction = action;
+                maximum = minval;
+            }
+        }
+
+        return finalaction;
+    }
+    else if (play(board) === 'o') {
+        let action;
+        let maxval;
+        if(board===initial_state())
+        {
+            return [1,1];
+        }
+        for (action of actions(board)) {
+            //console.log("actions=0", actions(board));
+
+            console.log("resulting board", result(board, action), action);
+            maxval = MaxValue(result(board, action), alpha, beta);
+            //console.log("maxival=",maxval);
+            if (maxval < minimum) {
+                finalaction = action;
+                minimum = maxval;
+            }
+        }
+
+        return finalaction;
+    }
+
+
+}
+
 
 (function () {
 
@@ -96,7 +345,7 @@ var player_is_x= true;
             }
 
             $el.addClass('blink');
-            setTimeout(rmClass, 2000);
+            setTimeout(rmClass, 1000);
 
         } // end-blink
 
@@ -209,8 +458,9 @@ var player_is_x= true;
         } // end-checkWin
 
         function win(winner) {
-            player_is_x=!player_is_x;
-            board=initial_state();
+            player_is_x = !player_is_x;
+            board_curr = initial_state();
+
             function winAction(row, text) {
                 row.forEach(function (col) {
                     blink(col);
@@ -254,236 +504,14 @@ var player_is_x= true;
         } // end-checkTie
 
         function tie() {
-          player_is_x = !player_is_x;
-          board=initial_state();
+            player_is_x = !player_is_x;
+            board_curr = initial_state();
             action('tie');
             scores.ties++;
             updateScores();
 
         } // end-tie
         //paste all functions here
-        function initial_state() {
-            return [[EMPTY, EMPTY, EMPTY],
-                [EMPTY, EMPTY, EMPTY],
-                [EMPTY, EMPTY, EMPTY]];
-        }
-
-
-        function play(board) {
-            let count = 0;
-            length = 3;
-            for (let i = 0; i < length; i++) {
-                for (let j = 0; j < length; j++) {
-                    if (board[i][j] === 'x' || board[i][j] === 'o') {
-                        count = count + 1;
-                    }
-                }
-
-            }
-            if(player_is_x)
-            {
-              if (count === 9) {
-                return "over";
-              }
-
-              if (count % 2 === 0) {
-                return 'x';
-
-              } else {
-                return 'o';
-              }
-            }
-            else
-            {
-              if (count === 9) {
-                return "over";
-              }
-
-              if (count % 2 === 0) {
-                return 'o';
-
-              } else {
-                return 'x';
-              }
-            }
-
-
-        }
-
-
-        function actions(board) {
-            let action = [];
-            length = 3;
-            for (let i = 0; i < length; i++) {
-                for (let j = 0; j < length; j++) {
-                    if (board[i][j] === EMPTY)
-                        action.push([i, j]);
-                }
-            }
-
-
-            return action
-        }
-
-        function checkAction(board, action) {
-            let allactions = actions(board);
-            let x;
-            for (x of allactions) {
-                if (x[0] === action[0] && x[1] === action[1]) {
-                    return true;
-                }
-            }
-            return false;
-
-        }
-
-        function result(board, action) {
-
-            if (terminal(board)) {
-                return "Game over.";
-            } else if (!checkAction(board, action)) {
-                return "Invalid action.";
-            } else {
-                let ResultingBoard = _.cloneDeep(board);
-                if (play(board) === 'x') {
-                ResultingBoard[action[0]][action[1]] = 'x';
-                } else
-                    ResultingBoard[action[0]][action[1]] = 'o';
-                return ResultingBoard;
-            }
-
-
-        }
-
-
-        function winner(board) {
-            if ((board[0][0] === 'x' && board[1][1] === 'x' && board[2][2] === 'x') || (
-                board[0][2] === 'x' && board[1][1] === 'x' && board[2][0] === 'x') || (
-                board[0][0] === 'x' && board[0][1] === 'x' && board[0][2] === 'x') || (
-                board[1][0] === 'x' && board[1][1] === 'x' && board[1][2] === 'x') || (
-                board[2][0] === 'x' && board[2][1] === 'x' && board[2][2] === 'x') || (
-                board[0][0] === 'x' && board[1][0] === 'x' && board[2][0] === 'x') || (
-                board[0][1] === 'x' && board[1][1] === 'x' && board[2][1] === 'x') || (
-                board[0][2] === 'x' && board[1][2] === 'x' && board[2][2] === 'x')) {
-                return 'x';
-            } else if ((board[0][0] === 'o' && board[1][1] === 'o' && board[2][2] === 'o') || (
-                board[0][2] === 'o' && board[1][1] === 'o' && board[2][0] === 'o') || (
-                board[0][0] === 'o' && board[0][1] === 'o' && board[0][2] === 'o') || (
-                board[1][0] === 'o' && board[1][1] === 'o' && board[1][2] === 'o') || (
-                board[2][0] === 'o' && board[2][1] === 'o' && board[2][2] === 'o') || (
-                board[0][0] === 'o' && board[1][0] === 'o' && board[2][0] === 'o') || (
-                board[0][1] === 'o' && board[1][1] === 'o' && board[2][1] === 'o') || (
-                board[0][2] === 'o' && board[1][2] === 'o' && board[2][2] === 'o')) {
-                return 'o';
-            } else {
-                return null;
-            }
-
-        }
-
-
-        function terminal(board) {
-            if (winner(board) != null)
-                return true;
-            for (let i = 0; i < 3; i++)
-                for (let j = 0; j < 3; j++)
-                    if (board[i][j] === EMPTY)
-                        return false;
-            return true;
-        }
-
-
-        function utility(board) {
-            if (winner(board) === 'x') {
-                return 1;
-            }
-
-            if (winner(board) === 'o') {
-                return -1;
-            } else {
-                return 0;
-            }
-
-
-        }
-
-
-        /**
-         * @return {number}
-         */
-        function MaxValue(board) {
-            //console.log("max");
-            if (terminal(board)) {
-                return utility(board);
-            }
-            let v = -737427379378478374;
-
-            let action;
-            for (action of actions(board))
-                v = Math.max(v, MinValue(result(board, action)));
-            return v;
-        }
-
-
-        /**
-         * @return {number}
-         */
-        function MinValue(board) {
-            //console.log("min");
-            if (terminal(board))
-                return utility(board);
-            let v = 737427379378478374;
-            let action;
-            for (action of actions(board))
-                v = Math.min(v, MaxValue(result(board, action)));
-            return v;
-        }
-
-
-        function minimax(board) {
-
-            let maximum = -9876544282792;
-            let minimum = 987736356373;
-            if (board === initial_state()) {
-                return [0, 0];
-            }
-
-            let finalaction = null;
-            if (play(board) === 'x') {
-                let action;
-                let minval;
-                for (action of actions(board)) {
-                    //onsole.log("actions", actions(board));
-                    console.log("resulting board", result(board, action));
-                    minval = MinValue(result(board, action));
-                    //console.log("minival=",minval);
-                    if (minval > maximum) {
-                        finalaction = action;
-                        maximum = minval;
-                    }
-                }
-
-                return finalaction;
-            } else if (play(board) === 'o') {
-                let action;
-                let maxval;
-                for (action of actions(board)) {
-                    //console.log("actions=0", actions(board));
-
-                    console.log("resulting board", result(board, action), action);
-                    maxval = MaxValue(result(board, action));
-                  //console.log("maxival=",maxval);
-                    if (maxval < minimum) {
-                        finalaction = action;
-                        minimum = maxval;
-                    }
-                }
-
-                return finalaction;
-            }
-
-
-        }
 
 
         /*
@@ -494,10 +522,10 @@ var player_is_x= true;
         function computer() {
 
             let winner;
-          if (checkWinner()) {
+            if (checkWinner()) {
                 isComputer = false;
-            winner = checkWinner();
-            win(winner);
+                winner = checkWinner();
+                win(winner);
                 return;
             } else if (checkTie()) {
                 isComputer = false;
@@ -507,28 +535,24 @@ var player_is_x= true;
 
             isComputer = true;
             console.log(cols);
-            console.log(board);
-            let action = minimax(board);
-            console.log(action);
-            console.log("eee",board);
-            let i,j;
-            if(action===null)
+            console.log(board_curr);
+            console.log("actions=",actions(board_curr));
+            let action = minimax(board_curr);
+            console.log("action=",action);
+            console.log("board",board_curr);
+            let i, j;
+            // if (action === null) {
+            //     i = 0;
+            //     j = 0;
+            // }
+            // else
             {
-              i=0;
-              j=0;
-            }
-            else if(board===initial_state())
-            {
-              i=0;
-              j=0;
-            }
-            else
-            {
-               i = action[0];
-              j = action[1];
+                i = action[0];
+                j = action[1];
             }
 
-            board[i][j] = chars.com;
+            board_curr[i][j] = chars.com;
+            console.log("board after change",board_curr);
             appendChar(cols[i][j], chars.com); //give the move in form of col[i][j]
 
             isComputer = false;
@@ -557,7 +581,7 @@ var player_is_x= true;
             }
 
             var coords = getCoords(target);
-            board[coords.row][coords.col] = chars.p;
+            board_curr[coords.row][coords.col] = chars.p;
             appendChar(cols[coords.row][coords.col], chars.p);
 
             if (checkWinner()) {
@@ -593,7 +617,7 @@ var player_is_x= true;
             if (target.hasClass('x')) {
                 chars.p = 'x';
                 chars.com = 'o';
-                player_is_x=true;
+                player_is_x = true;
                 $scores.find('.p').find('.char').html('X');
                 $scores.find('.com').find('.char').html('O');
             } else {
@@ -601,7 +625,7 @@ var player_is_x= true;
                 chars.com = 'x';
                 $scores.find('.p').find('.char').html('O');
                 $scores.find('.com').find('.char').html('X');
-                player_is_x=false;
+                player_is_x = false;
             }
             dialogs('out', 'pick');
 
