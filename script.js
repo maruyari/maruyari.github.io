@@ -158,7 +158,7 @@ var player_is_x= true;
                 dialogs('out', 'pick');
                 switchTurn();
                 if (turn === 'com') {
-                    setTimeout(computer, 500);
+                    setTimeout(computer, 25);
                 }
             } else if (action === 'win') {
                 dialogs('in', 'pick');
