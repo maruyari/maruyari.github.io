@@ -1,15 +1,22 @@
 'use strict';
 
-var EMPTY = null;
+const EMPTY = null;
 var board_curr = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]];
 var player_is_x = true;
-let depth=1;
+
 function initial_state() {
     return [[EMPTY, EMPTY, EMPTY],
         [EMPTY, EMPTY, EMPTY],
         [EMPTY, EMPTY, EMPTY]];
 }
 
+var client;
+var playerID;
+var opponentID;
+var room;
+var activeGame = false;
+var singleplayer = false;
+let depth = 1;
 
 function play(board) {
     let count = 0;
@@ -147,20 +154,19 @@ function utility(board) {
 }
 
 
-
 /**
  * @return {number}
  */
-function MaxValue(board,depth, alpha, beta) {
+function MaxValue(board, depth, alpha, beta) {
     console.log("max");
-    if (terminal(board) || depth===0) {
+    if (terminal(board) || depth === 0) {
         return utility(board);
     }
     let v = -737427379378478374;
 
     let action;
     for (action of actions(board)) {
-        v = Math.max(v, MinValue(result(board, action),depth-1, alpha, beta));
+        v = Math.max(v, MinValue(result(board, action), depth - 1, alpha, beta));
         alpha = Math.max(alpha, v);
         if (alpha >= beta) {
             break;
@@ -175,14 +181,14 @@ function MaxValue(board,depth, alpha, beta) {
 /**
  * @return {number}
  */
-function MinValue(board, depth,alpha, beta) {
+function MinValue(board, depth, alpha, beta) {
     console.log("min");
-    if (terminal(board) || depth===0)
+    if (terminal(board) || depth === 0)
         return utility(board);
     let v = 737427379378478374;
     let action;
     for (action of actions(board)) {
-        v = Math.min(v, MaxValue(result(board, action),depth-1, alpha, beta));
+        v = Math.min(v, MaxValue(result(board, action), depth - 1, alpha, beta));
         beta = Math.min(v, beta);
         if (alpha >= beta) {
             break;
@@ -192,8 +198,9 @@ function MinValue(board, depth,alpha, beta) {
     //v = Math.min(v, MaxValue(result(board, action),alpha,beta));
     return v;
 }
+
 function getRndInteger(min, max) {
-    return Math.floor(Math.random() * (max - min) ) + min;
+    return Math.floor(Math.random() * (max - min)) + min;
 }
 
 
@@ -205,11 +212,11 @@ function minimax(board) {
     let alpha = -2837643415347874;
     let beta = 46876435468435467;
     if (board === initial_state()) {
-        let all_actions=actions(board);
-        let size=all_actions.length;
-        let choose=getRndInteger(0,size);
+        let all_actions = actions(board);
+        let size = all_actions.length;
+        let choose = getRndInteger(0, size);
         // return all_actions(choose);
-        return [1,1];
+        return [1, 1];
     }
 
     let finalaction = null;
@@ -219,7 +226,7 @@ function minimax(board) {
         for (action of actions(board)) {
             //onsole.log("actions", actions(board));
             console.log("resulting board", result(board, action));
-            minval = MinValue(result(board, action), depth,alpha, beta);
+            minval = MinValue(result(board, action), depth, alpha, beta);
             //console.log("minival=",minval);
             if (minval > maximum) {
                 finalaction = action;
@@ -228,19 +235,17 @@ function minimax(board) {
         }
 
         return finalaction;
-    }
-    else if (play(board) === 'o') {
+    } else if (play(board) === 'o') {
         let action;
         let maxval;
-        if(board===initial_state())
-        {
-            return [1,1];
+        if (board === initial_state()) {
+            return [1, 1];
         }
         for (action of actions(board)) {
             //console.log("actions=0", actions(board));
 
             console.log("resulting board", result(board, action), action);
-            maxval = MaxValue(result(board, action),depth, alpha, beta);
+            maxval = MaxValue(result(board, action), depth, alpha, beta);
             //console.log("maxival=",maxval);
             if (maxval < minimum) {
                 finalaction = action;
@@ -253,7 +258,6 @@ function minimax(board) {
 
 
 }
-
 
 (function () {
 
@@ -286,10 +290,10 @@ function minimax(board) {
                 [cols[0][0], cols[1][1], cols[2][2]],
                 [cols[0][2], cols[1][1], cols[2][0]] // Diago
             ],
-            chars = {p: 'x', com: 'o'},
-            scores = {p: 0, ties: 0, com: 0},
-            turn = 'p',
-            isComputer = false;
+            chars = {self: 'x', opponent: 'o'},
+            scores = {self: 0, ties: 0, opponent: 0},
+            turn = "self",
+            isOpponent = false;
 
 
         /*
@@ -299,9 +303,9 @@ function minimax(board) {
         */
         function updateScores() {
 
-            $scores.find('.p').find('u').html(scores.p);
+            $scores.find('.p').find('u').html(scores.self);
             $scores.find('.ties').find('u').html(scores.ties);
-            $scores.find('.com').find('u').html(scores.com);
+            $scores.find('.com').find('u').html(scores.opponent);
 
         } // end-updateScores
 
@@ -358,11 +362,12 @@ function minimax(board) {
         */
         function switchTurn() {
 
-            if (turn === 'p') {
-                turn = 'com';
+            if (turn === "self") {
+                turn = "opponent";
             } else {
-                turn = 'p';
+                turn = "self";
             }
+            isOpponent = !isOpponent;
 
         } // end-switchTurn
 
@@ -374,13 +379,13 @@ function minimax(board) {
         function dialogs(fade, dialog) {
 
             if (fade === 'out') {
-                $dialogs.fadeOut(500, function () {
+                $dialogs.find('.' + dialog).fadeOut(500, function () {
                     $dialogs.find('.end').find('.msg').html('');
+                    if (dialog == 'pick') $dialogs.hide();
                 });
             } else {
-                $dialogs.children().show();
-                $dialogs.find('.' + dialog).hide(0, function () {
-                    $dialogs.fadeIn(500);
+                $dialogs.show(0, function () {
+                    $dialogs.find('.' + dialog).fadeIn(500);
                 });
             }
 
@@ -406,16 +411,22 @@ function minimax(board) {
             });
 
             if (action === 'replay') {
-                dialogs('out', 'pick');
+                $dialogs.find('.end').fadeOut(500);
+                if (!singleplayer) {
+                    setTimeout(dialogs, 500, 'in', 'pick');
+                } else {
+                    $dialogs.fadeOut(500);
+                }
                 switchTurn();
-                if (turn === 'com') {
-                    setTimeout(computer, 25);
+                if (singleplayer && turn === "opponent") {
+                    let action = minimax(board_curr);
+                    opponent(action[0], action[1]);
                 }
             } else if (action === 'win') {
-                dialogs('in', 'pick');
+                dialogs('in', 'end');
             } else if (action === 'tie') {
-                $dialogs.find('.msg').html('Tie');
-                dialogs('in', 'pick');
+                $dialogs.find('.end').find('.msg').html('Tie');
+                dialogs('in', 'end');
             }
 
         } // end-action
@@ -441,18 +452,18 @@ function minimax(board) {
 
             } // end-getRow
 
-            var p = getRow(chars.p),
-                com = getRow(chars.com);
+            var p = getRow(chars.self),
+                opp = getRow(chars.opponent);
 
             if (p) {
                 return {
                     name: 'p',
                     row: p
                 };
-            } else if (com) {
+            } else if (opp) {
                 return {
-                    name: 'com',
-                    row: com
+                    name: 'opp',
+                    row: opp
                 };
             }
             return false;
@@ -461,26 +472,25 @@ function minimax(board) {
 
         function win(winner) {
             player_is_x = !player_is_x;
-
             board_curr = initial_state();
 
             function winAction(row, text) {
                 row.forEach(function (col) {
                     blink(col);
                 });
-                $dialogs.find('.msg').html(text);
+                $dialogs.find('.end').find('.msg').html(text);
                 action('win');
             } // action
 
             if (winner.name === 'p') {
                 winAction(winner.row, 'You win!!');
+                scores.self++;
                 depth++;
-                scores.p++;
                 updateScores();
-            } else if (winner.name === 'com') {
-                winAction(winner.row, 'Computer wins!');
-                depth=Math.max(1,depth-1);
-                scores.com++;
+            } else if (winner.name === 'opp') {
+                winAction(winner.row, 'Opponent wins!');
+                scores.opponent++;
+                depth = Math.max(1, depth - 1);
                 updateScores();
             }
 
@@ -510,6 +520,7 @@ function minimax(board) {
 
         function tie() {
             player_is_x = !player_is_x;
+
             board_curr = initial_state();
             action('tie');
             scores.ties++;
@@ -524,70 +535,10 @@ function minimax(board) {
           Computer Function.
         ============================================
         */
-        function computer() {
+        function opponent(row, col) {
 
-            let winner;
-            if (checkWinner()) {
-                isComputer = false;
-                winner = checkWinner();
-                win(winner);
-                return;
-            } else if (checkTie()) {
-                isComputer = false;
-                tie();
-                return;
-            }
-
-            isComputer = true;
-            console.log(cols);
-            console.log(board_curr);
-            console.log("actions=",actions(board_curr));
-            let action = minimax(board_curr);
-            console.log("action=",action);
-            console.log("board",board_curr);
-            let i, j;
-            // if (action === null) {
-            //     i = 0;
-            //     j = 0;
-            // }
-            // else
-            {
-                i = action[0];
-                j = action[1];
-            }
-
-            board_curr[i][j] = chars.com;
-            console.log("board after change",board_curr);
-            appendChar(cols[i][j], chars.com); //give the move in form of col[i][j]
-
-            isComputer = false;
-
-            if (checkWinner()) {
-                winner = checkWinner();
-                win(winner);
-
-            } else if (checkTie()) {
-                tie();
-
-            }
-
-        } // end-computer
-
-
-        /*
-        ============================================
-          Player Function.
-        ============================================
-        */
-        function player(target) {
-
-            if (isComputer || !target.hasClass('col') || target.children('u').length) {
-                return;
-            }
-
-            var coords = getCoords(target);
-            board_curr[coords.row][coords.col] = chars.p;
-            appendChar(cols[coords.row][coords.col], chars.p);
+            board_curr[row][col] = chars.opponent;
+            appendChar(cols[row][col], chars.opponent);
 
             if (checkWinner()) {
                 var winner = checkWinner();
@@ -598,10 +549,51 @@ function minimax(board) {
                 return;
             }
 
-            isComputer = true;
-            setTimeout(computer, 25);
+            isOpponent = false;
 
-        } // end-player
+        } // end-opponent
+
+
+        /*
+        ============================================
+          Player Function.
+        ============================================
+        */
+        function self(target) {
+
+            if (isOpponent || !target.hasClass('col') || target.children('u').length) {
+                return;
+            }
+
+            var coords = getCoords(target);
+            console.log(coords);
+            board_curr[coords.row][coords.col] = chars.self;
+            appendChar(cols[coords.row][coords.col], chars.self);
+            if (!singleplayer) {
+                var msg = playerID + ':' + coords.row.toString() + ':' + coords.col.toString();
+                var message = new Paho.MQTT.Message(msg);
+                message.destinationName = 'maruyari_tictactoe/' + room;
+                client.send(message);
+            }
+
+
+            if (checkWinner()) {
+                let winner = checkWinner();
+                win(winner);
+                return;
+            } else if (checkTie()) {
+                tie();
+                return;
+            }
+
+            isOpponent = true;
+            if (singleplayer) {
+                let action = minimax(board_curr);
+                opponent(action[0], action[1]);
+
+            }
+
+        } // end-self
 
         /*
         ============================================
@@ -612,22 +604,22 @@ function minimax(board) {
 
             var target = $(e.target);
 
-            player(target);
+            self(target);
 
         });
 
         $dialogs.find('.pick').find('button').on('click', function (e) {
-//come here
+            //come here
             var target = $(e.target);
             if (target.hasClass('x')) {
-                chars.p = 'x';
-                chars.com = 'o';
+                chars.self = 'x';
+                chars.opponent = 'o';
                 player_is_x = true;
                 $scores.find('.p').find('.char').html('X');
                 $scores.find('.com').find('.char').html('O');
             } else {
-                chars.p = 'o';
-                chars.com = 'x';
+                chars.self = 'o';
+                chars.opponent = 'x';
                 $scores.find('.p').find('.char').html('O');
                 $scores.find('.com').find('.char').html('X');
                 player_is_x = false;
@@ -642,15 +634,121 @@ function minimax(board) {
 
         });
 
+        //MQTT related functions for connecting two players
+        $dialogs.find('.creater').find('.create_room').on('click', function (e) {
+            room = Math.floor(Math.random() * 1000000000).toString();
+            client.subscribe('maruyari_tictactoe/' + room);
+            $dialogs.find('.creater').fadeOut(500, function () {
+                var waiting = $dialogs.find('.waiting');
+                waiting.find('.msg').html(room);
+                waiting.fadeIn(500);
+            });
+            console.log(room);
+        });
+
+        $dialogs.find('.creater').find('.join_room').on('click', function (e) {
+            $dialogs.find('.creater').fadeOut(500, function () {
+                var join = $dialogs.find('.join');
+                join.fadeIn(500);
+            });
+        });
+
+        $dialogs.find('.join ').find('.join_button').on('click', function (e) {
+            room = $dialogs.find('.join').find('.room_code').val();
+            client.subscribe('maruyari_tictactoe/' + room);
+            var message = new Paho.MQTT.Message(playerID);
+            message.destinationName = 'maruyari_tictactoe/' + room;
+            client.send(message);
+            turn = "opponent";
+            isOpponent = true;
+        });
+
+        function makeid(length) {
+            var result = '';
+            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            var charactersLength = characters.length;
+            for (var i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            return result;
+        }
+
+        $dialogs.find('.mode').fadeIn(500);
+        $dialogs.find('.mode').find('.single').on('click', function () {
+            singleplayer = true;
+            $dialogs.find('.mode').fadeOut(500, function () {
+                $dialogs.find('.pick').fadeIn(500);
+            });
+
+        });
+
+        $dialogs.find('.mode').find('.double').on('click', function () {
+            twoplayer();
+            $dialogs.find('.loader').show();
+            $dialogs.find('.mode').fadeOut(500);
+
+        });
+
+        function twoplayer() {
+            //Create a client instance
+            playerID = makeid(10);
+            client = new Paho.MQTT.Client("broker.hivemq.com", 8000, playerID);
+
+            // set callback handlers
+            client.onConnectionLost = onConnectionLost;
+            client.onMessageArrived = onMessageArrived;
+
+            // connect the client
+            client.connect({onSuccess: onConnect});
+
+        }
+
+        // called when the client connects
+        function onConnect() {
+            // Once a connection has been made, display the room choices.
+            console.log("Connected");
+            $dialogs.find('.loader').hide();
+            $dialogs.find('.creater').fadeIn(500);
+        }
+
+        // called when the client loses its connection
+        function onConnectionLost(responseObject) {
+            if (responseObject.errorCode !== 0) {
+                console.log("onConnectionLost:" + responseObject.errorMessage);
+                alert("Connection Lost!");
+            }
+        }
+
+        // called when a message arrives
+        function onMessageArrived(message) {
+            console.log("onMessageArrived:" + message.payloadString);
+            if (!activeGame) {
+                opponentID = message.payloadString;
+                if (opponentID == playerID) return;
+                activeGame = true;
+                var message = new Paho.MQTT.Message(playerID);
+                message.destinationName = 'maruyari_tictactoe/' + room;
+                client.send(message);
+                $dialogs.find('.waiting').fadeOut(500);
+                $dialogs.find('.join').fadeOut(500);
+                setTimeout(function () {
+                    $dialogs.find('.pick').fadeIn(500);
+                }, 500);
+            } else {
+                var msg_array = message.payloadString.split(":");
+                if (msg_array[0] == opponentID && msg_array.length === 3) {
+                    opponent(msg_array[1], msg_array[2]);
+                }
+            }
+        }
+
     } // end-TicTacToe
 
     $(document).ready(function () {
-
         // DOM
         let $game = $('.game'),
             $scores = $('.scores'),
             $dialogs = $('.dialogs');
-
         let game = new TicTacToe({
 
             game: $game,
