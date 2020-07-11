@@ -3,6 +3,7 @@
 var EMPTY = null;
 var board_curr = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]];
 var player_is_x = true;
+let depth=1;
 function initial_state() {
     return [[EMPTY, EMPTY, EMPTY],
         [EMPTY, EMPTY, EMPTY],
@@ -150,16 +151,16 @@ function utility(board) {
 /**
  * @return {number}
  */
-function MaxValue(board, alpha, beta) {
-    //console.log("max");
-    if (terminal(board)) {
+function MaxValue(board,depth, alpha, beta) {
+    console.log("max");
+    if (terminal(board) || depth===0) {
         return utility(board);
     }
     let v = -737427379378478374;
 
     let action;
     for (action of actions(board)) {
-        v = Math.max(v, MinValue(result(board, action), alpha, beta));
+        v = Math.max(v, MinValue(result(board, action),depth-1, alpha, beta));
         alpha = Math.max(alpha, v);
         if (alpha >= beta) {
             break;
@@ -174,14 +175,14 @@ function MaxValue(board, alpha, beta) {
 /**
  * @return {number}
  */
-function MinValue(board, alpha, beta) {
-    //console.log("min");
-    if (terminal(board))
+function MinValue(board, depth,alpha, beta) {
+    console.log("min");
+    if (terminal(board) || depth===0)
         return utility(board);
     let v = 737427379378478374;
     let action;
     for (action of actions(board)) {
-        v = Math.min(v, MaxValue(result(board, action), alpha, beta));
+        v = Math.min(v, MaxValue(result(board, action),depth-1, alpha, beta));
         beta = Math.min(v, beta);
         if (alpha >= beta) {
             break;
@@ -197,7 +198,8 @@ function getRndInteger(min, max) {
 
 
 function minimax(board) {
-    console.log("minimax is getting",board);
+    // console.log("minimax is getting",board);
+
     let maximum = -9876544282792;
     let minimum = 987736356373;
     let alpha = -2837643415347874;
@@ -217,7 +219,7 @@ function minimax(board) {
         for (action of actions(board)) {
             //onsole.log("actions", actions(board));
             console.log("resulting board", result(board, action));
-            minval = MinValue(result(board, action), alpha, beta);
+            minval = MinValue(result(board, action), depth,alpha, beta);
             //console.log("minival=",minval);
             if (minval > maximum) {
                 finalaction = action;
@@ -238,7 +240,7 @@ function minimax(board) {
             //console.log("actions=0", actions(board));
 
             console.log("resulting board", result(board, action), action);
-            maxval = MaxValue(result(board, action), alpha, beta);
+            maxval = MaxValue(result(board, action),depth, alpha, beta);
             //console.log("maxival=",maxval);
             if (maxval < minimum) {
                 finalaction = action;
@@ -459,6 +461,7 @@ function minimax(board) {
 
         function win(winner) {
             player_is_x = !player_is_x;
+
             board_curr = initial_state();
 
             function winAction(row, text) {
@@ -471,10 +474,12 @@ function minimax(board) {
 
             if (winner.name === 'p') {
                 winAction(winner.row, 'You win!!');
+                depth++;
                 scores.p++;
                 updateScores();
             } else if (winner.name === 'com') {
                 winAction(winner.row, 'Computer wins!');
+                depth=Math.max(1,depth-1);
                 scores.com++;
                 updateScores();
             }
