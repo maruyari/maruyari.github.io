@@ -693,13 +693,12 @@ function minimax(board) {
             //Create a client instance
             playerID = makeid(10);
             client = new Paho.MQTT.Client("test.mosquitto.org",8081, playerID);
-
             // set callback handlers
             client.onConnectionLost = onConnectionLost;
             client.onMessageArrived = onMessageArrived;
 
             // connect the client
-            client.connect({onSuccess: onConnect});
+            client.connect({onSuccess: onConnect, useSSL: true});
 
         }
 
