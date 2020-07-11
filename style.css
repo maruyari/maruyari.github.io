@@ -54,6 +54,17 @@ u {
         content: "";
         display: block;
     }
+    
+}
+@media screen and (max-width:860px){
+    .spotify{
+        display:none;
+    }
+}
+@media screen and (max-height:1300px){
+    .spotify{
+        display:none;
+    }
 }
 
 @media screen and (max-height: 620px) {
