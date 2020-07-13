@@ -16,7 +16,7 @@ var opponentID;
 var room;
 var activeGame = false;
 var singleplayer = false;
-let depth = 1;
+let depth = 3;
 
 function play(board) {
     let count = 0;
