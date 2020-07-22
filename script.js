@@ -698,7 +698,7 @@ function minimax(board) {
             client.onMessageArrived = onMessageArrived;
 
             // connect the client
-            client.connect({onSuccess: onConnect, useSSL: true});
+            client.connect({onSuccess: onConnect,});
 
         }
 
