@@ -692,13 +692,13 @@ function minimax(board) {
         function twoplayer() {
             //Create a client instance
             playerID = makeid(10);
-            client = new Paho.MQTT.Client("test.mosquitto.org", 8081, playerID);
+            client = new Paho.MQTT.Client("mqtt.flespi.io", 443, playerID);
             // set callback handlers
             client.onConnectionLost = onConnectionLost;
             client.onMessageArrived = onMessageArrived;
 
             // connect the client
-            client.connect({onSuccess: onConnect,useSSL: true});
+            client.connect({onSuccess: onConnect,useSSL: true, userName: "v4iODkgmjncxsDNhuytqYbC1Guhuk2cFVljotnyAyAXR2zWkXfAJf0yLlG3vy6Yj" });
 
         }
 
