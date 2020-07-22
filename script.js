@@ -692,7 +692,7 @@ function minimax(board) {
         function twoplayer() {
             //Create a client instance
             playerID = makeid(10);
-            client = new Paho.MQTT.Client("test.mosquitto.org",8081, playerID);
+            client = new Paho.MQTT.Client("broker.hivemq.com", 8000, playerID);
             // set callback handlers
             client.onConnectionLost = onConnectionLost;
             client.onMessageArrived = onMessageArrived;
