@@ -17,8 +17,8 @@ var room;
 var activeGame = false;
 var singleplayer = false;
 let depth = 3;
-
 // below starts the functions used by the minimax algorithm
+// for the 2 player mode, and its communication please refer line 693 onwards.
 function play(board) {
 //     checks who's turn its to play next
     let count = 0;
@@ -169,7 +169,7 @@ function MaxValue(board, depth, alpha, beta) {
     if (terminal(board) || depth === 0) {
         return utility(board);
     }
-    let v = -737427379378478374;
+    let v = -737427379378478374; // == -INFINITY
 
     let action;
     for (action of actions(board)) {
@@ -191,7 +191,7 @@ function MinValue(board, depth, alpha, beta) {
 //     console.log("min");
     if (terminal(board) || depth === 0)
         return utility(board);
-    let v = 737427379378478374;
+    let v = 737427379378478374; //=== +Infinity
     let action;
     for (action of actions(board)) {
         v = Math.min(v, MaxValue(result(board, action), depth - 1, alpha, beta));
@@ -208,21 +208,22 @@ function MinValue(board, depth, alpha, beta) {
 function minimax(board) {
     // console.log("minimax is getting",board);
 // returns the optimal move to make by the computer
-    let maximum = -9876544282792;
+    let maximum = -9876544282792; //the following numbers are informal representations of infinity, if positive and -infinity if negative
     let minimum = 987736356373;
     let alpha = -2837643415347874;
     let beta = 46876435468435467;
     if (board === initial_state()) {
        
-        return [0, 0];
+        return [0, 0];  //is board is blank then return default play [0,0]
     }
 
     let finalaction = null;
     if (play(board) === 'x') {
+//         we find the maximum ultity here 
         let action;
         let minval;
         for (action of actions(board)) {
-            //onsole.log("actions", actions(board));
+            //console.log("actions", actions(board));
             console.log("resulting board", result(board, action));
             minval = MinValue(result(board, action), depth, alpha, beta);
             //console.log("minival=",minval);
@@ -234,6 +235,7 @@ function minimax(board) {
 
         return finalaction;
     } else if (play(board) === 'o') {
+//         we find the minimum utility here
         let action;
         let maxval;
         if (board === initial_state()) {
@@ -257,7 +259,7 @@ function minimax(board) {
 
 }
 // the minimax modules end 
-// below folows the front end handling 
+// below folows the frontend handling 
 (function () {
 
     function TicTacToe(args) {
@@ -526,12 +528,10 @@ function minimax(board) {
             updateScores();
 
         } // end-tie
-        //paste all functions here
-
-
+        
         /*
         ============================================
-          Computer Function.
+          Opponent Function.
         ============================================
         */
         function opponent(row, col) {
@@ -569,6 +569,7 @@ function minimax(board) {
             board_curr[coords.row][coords.col] = chars.self;
             appendChar(cols[coords.row][coords.col], chars.self);
             if (!singleplayer) {
+//                 is its a 2 player game then the coordinates are broadcasted to the other player 
                 var msg = playerID + ':' + coords.row.toString() + ':' + coords.col.toString();
                 var message = new Paho.MQTT.Message(msg);
                 message.destinationName = 'maruyari_tictactoe/' + room;
@@ -586,6 +587,7 @@ function minimax(board) {
             }
 
             isOpponent = true;
+//             if the game is against the computer then minimax is called.
             if (singleplayer) {
                 let action = minimax(board_curr);
                 opponent(action[0], action[1]);
@@ -691,7 +693,7 @@ function minimax(board) {
         function twoplayer() {
             //Create a client instance
             playerID = makeid(10);
-            client = new Paho.MQTT.Client("mqtt.flespi.io", 443, playerID);
+            client = new Paho.MQTT.Client("mqtt.flespi.io", 443, playerID); //this makes the fconnection to the broker used
             // set callback handlers
             client.onConnectionLost = onConnectionLost;
             client.onMessageArrived = onMessageArrived;
