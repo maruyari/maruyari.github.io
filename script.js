@@ -1,8 +1,8 @@
 'use strict';
 
 const EMPTY = null;
-var board_curr = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]];
-var player_is_x = true;
+var board_curr = [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]]; // this stores the current gamee state.
+var player_is_x = true; // checks if player who plays first is X 
 
 function initial_state() {
     return [[EMPTY, EMPTY, EMPTY],
@@ -18,7 +18,9 @@ var activeGame = false;
 var singleplayer = false;
 let depth = 3;
 
+// below starts the functions used by the minimax algorithm
 function play(board) {
+//     checks who's turn its to play next
     let count = 0;
     let length = 3;
     for (let i = 0; i < length; i++) {
@@ -58,6 +60,7 @@ function play(board) {
 
 
 function actions(board) {
+//     given a given game state, this function returns all the possible valid moves and returns it as a array.
     let action = [];
     let length = 3;
     for (let i = 0; i < length; i++) {
@@ -72,6 +75,7 @@ function actions(board) {
 }
 
 function checkAction(board, action) {
+//     given a given game state and action, this funtion checks if the action is valid
     let allactions = actions(board);
     let x;
     for (x of allactions) {
@@ -84,7 +88,7 @@ function checkAction(board, action) {
 }
 
 function result(board, action) {
-
+// given a game state and action, this funtion returns the resulting board after performing the action on the board
     if (terminal(board)) {
         return "Game over.";
     } else if (!checkAction(board, action)) {
@@ -103,6 +107,7 @@ function result(board, action) {
 
 
 function winner(board) {
+//     checks if theres a winner, returns it.
     if ((board[0][0] === 'x' && board[1][1] === 'x' && board[2][2] === 'x') || (
         board[0][2] === 'x' && board[1][1] === 'x' && board[2][0] === 'x') || (
         board[0][0] === 'x' && board[0][1] === 'x' && board[0][2] === 'x') || (
@@ -129,6 +134,7 @@ function winner(board) {
 
 
 function terminal(board) {
+//     checks if the game is over
     if (winner(board) != null)
         return true;
     for (let i = 0; i < 3; i++)
@@ -140,6 +146,7 @@ function terminal(board) {
 
 
 function utility(board) {
+//     if the winner is X then assigns the game result a value 1, else if its O, then assigns -1, if its a tie, then 0
     if (winner(board) === 'x') {
         return 1;
     }
@@ -158,7 +165,7 @@ function utility(board) {
  * @return {number}
  */
 function MaxValue(board, depth, alpha, beta) {
-    console.log("max");
+//     console.log("max");
     if (terminal(board) || depth === 0) {
         return utility(board);
     }
@@ -173,7 +180,6 @@ function MaxValue(board, depth, alpha, beta) {
         }
 
     }
-    // v = Math.max(v, MinValue(result(board, action),alpha,beta));
     return v;
 }
 
@@ -182,7 +188,7 @@ function MaxValue(board, depth, alpha, beta) {
  * @return {number}
  */
 function MinValue(board, depth, alpha, beta) {
-    console.log("min");
+//     console.log("min");
     if (terminal(board) || depth === 0)
         return utility(board);
     let v = 737427379378478374;
@@ -195,28 +201,20 @@ function MinValue(board, depth, alpha, beta) {
         }
 
     }
-    //v = Math.min(v, MaxValue(result(board, action),alpha,beta));
     return v;
-}
-
-function getRndInteger(min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
 }
 
 
 function minimax(board) {
     // console.log("minimax is getting",board);
-
+// returns the optimal move to make by the computer
     let maximum = -9876544282792;
     let minimum = 987736356373;
     let alpha = -2837643415347874;
     let beta = 46876435468435467;
     if (board === initial_state()) {
-        let all_actions = actions(board);
-        let size = all_actions.length;
-        let choose = getRndInteger(0, size);
-        // return all_actions(choose);
-        return [1, 1];
+       
+        return [0, 0];
     }
 
     let finalaction = null;
@@ -258,7 +256,8 @@ function minimax(board) {
 
 
 }
-
+// the minimax modules end 
+// below folows the front end handling 
 (function () {
 
     function TicTacToe(args) {
@@ -469,10 +468,10 @@ function minimax(board) {
             return false;
 
         } // end-checkWin
-
+//         the below two funtions might seem redundant, they were required due to JS's asynchronous nature 
         function win(winner) {
-            player_is_x = !player_is_x;
-            board_curr = initial_state();
+            player_is_x = !player_is_x; //since the game is over the below 2 lines set the inital condditions for the next game
+            board_curr = initial_state(); 
 
             function winAction(row, text) {
                 row.forEach(function (col) {
@@ -485,12 +484,12 @@ function minimax(board) {
             if (winner.name === 'p') {
                 winAction(winner.row, 'You win!!');
                 scores.self++;
-                depth++;
+                depth++; //increases depth of minimax, increasing difficulty
                 updateScores();
             } else if (winner.name === 'opp') {
                 winAction(winner.row, 'Opponent wins!');
                 scores.opponent++;
-                depth = Math.max(1, depth - 1);
+                depth = Math.max(1, depth - 1);//decreases depth of minimax, decreasing difficulty but ensuring that they dont go below 1.
                 updateScores();
             }
 
