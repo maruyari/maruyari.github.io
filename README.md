@@ -25,7 +25,7 @@
     2. Depth is increased if player wins, thus increasing difficulty
     3. Depth is decreased by 1 if player loses, thus decreases difficulty.
     4. Base difficulty starts at 3.
- 4. Alpha beta pruning incorporated - increases the decision making speed of the AI by 6 times
+ 4. Alpha beta pruning incorporated - increases the decision making speed of the AI by a huge times
  
  ## Play against Friend 
  1. Gives you option to create room and join room.
