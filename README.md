@@ -1,6 +1,6 @@
 
 ## Tic Tac toe game - Web application
- Hosted on http://maruyari.github.io
+ Hosted on http://7anya.github.io
  
 > - __Completely coded using client side scripting, does not require a API, or backend framework__
 > - __Languages used:_HTML as a markup, Javascript (along with JQuery library), and CSS for styling_.__
